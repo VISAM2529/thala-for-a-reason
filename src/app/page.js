@@ -139,7 +139,7 @@ const [error, setError] = useState('');
           ))}
         </div>
          */}
-        <div className="mb-12 max-w-md mx-auto">
+        {/* <div className="mb-12 max-w-md mx-auto">
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
   <input
     type="email"
@@ -185,7 +185,7 @@ const [error, setError] = useState('');
               Thanks! We'll let you know when we launch!
             </motion.div>
           )}
-        </div>
+        </div> */}
         
         <div className="flex justify-center space-x-6 mb-12">
           <a href="#" className="text-blue-200 hover:text-yellow-400 transition duration-300 transform hover:scale-110">
