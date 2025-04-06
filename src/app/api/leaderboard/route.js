@@ -1,73 +1,104 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Submission from '@/models/Submission';
+import { unstable_cache } from 'next/cache';
 
-// Recommended: Ensure these indexes exist in your MongoDB collection:
-// 1. Submission.createIndex({ likes: -1 })
-// 2. Submission.createIndex({ timestamp: -1 })
+// Cached data fetcher with 60-second revalidation
+const getCachedLeaderboardData = unstable_cache(
+  async (sort, limit) => {
+    await dbConnect();
+    
+    if (sort === 'random') {
+      return await Submission.aggregate([
+        { $match: { approved: true } }, // Only show approved submissions
+        { $sample: { size: limit } },
+        { $project: { _id: 1, title: 1, author: 1, likes: 1, timestamp: 1 } }
+      ]).maxTimeMS(5000);
+    }
+
+    const sortConfig = sort === 'newest' 
+      ? { timestamp: -1 } 
+      : { likes: -1, timestamp: -1 }; // Secondary sort for consistency
+
+    return await Submission.find({ approved: true })
+      .sort(sortConfig)
+      .limit(limit)
+      .select('_id title author likes timestamp')
+      .lean()
+      .maxTimeMS(5000);
+  },
+  ['leaderboard-data'],
+  { revalidate: 60 }
+);
 
 export async function GET(request) {
-  // Set timeout for the entire operation (in milliseconds)
-  const timeoutDuration = 8000; // 8 seconds
+  const timeoutDuration = 8000; // 8 seconds total timeout
   let timeoutHandle;
 
-  const timeoutPromise = new Promise((_, reject) => {
-    timeoutHandle = setTimeout(() => {
-      reject(new Error('Database operation timed out'));
-    }, timeoutDuration);
-  });
-
   try {
-    // Get query parameters with validation
+    // Parse and validate parameters
     const { searchParams } = new URL(request.url);
     const sort = ['popular', 'newest', 'random'].includes(searchParams.get('sort')) 
       ? searchParams.get('sort') 
       : 'popular';
-    const limit = Math.min(parseInt(searchParams.get('limit')) || 20, 100); // Max 100 items
+    const limit = Math.min(parseInt(searchParams.get('limit')) || 20, 100);
 
-    // Connect to database with timeout
-    await Promise.race([dbConnect(), timeoutPromise]);
+    // Set timeout
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutHandle = setTimeout(() => {
+        reject(new Error('Database operation timed out'));
+      }, timeoutDuration);
+    });
 
-    let submissions;
-    if (sort === 'random') {
-      // More efficient random sampling for large collections
-      submissions = await Submission.aggregate([
-        { $match: { /* any filters you might need */ } },
-        { $sample: { size: limit } },
-        { $project: { _id: 1, /* other fields you need */ } } // Only select necessary fields
-      ]);
-    } else {
-      // Standard query with optimized sorting
-      const sortConfig = sort === 'newest' 
-        ? { timestamp: -1 } 
-        : { likes: -1 };
+    // Get data with timeout protection
+    const submissions = await Promise.race([
+      getCachedLeaderboardData(sort, limit),
+      timeoutPromise
+    ]);
 
-      submissions = await Submission.find({})
-        .sort(sortConfig)
-        .limit(limit)
-        .select('-__v') // Exclude unnecessary fields
-        .lean()
-        .maxTimeMS(5000); // MongoDB query timeout
-    }
-
-    // Clear the timeout if we succeeded
     clearTimeout(timeoutHandle);
 
-    return NextResponse.json({ submissions });
-    
+    return NextResponse.json({ 
+      success: true,
+      data: submissions,
+      meta: {
+        sort,
+        limit,
+        returned: submissions.length,
+        cached: true // Indicates if coming from cache
+      }
+    });
+
   } catch (error) {
-    // Clear timeout in case of error
     if (timeoutHandle) clearTimeout(timeoutHandle);
 
     console.error('Leaderboard error:', error.message);
     
     const status = error.message.includes('timed out') ? 504 : 500;
     return NextResponse.json(
-      { error: status === 504 
-        ? 'Request timeout. Please try again.' 
-        : 'Failed to load leaderboard.' 
+      { 
+        success: false,
+        error: status === 504 
+          ? 'Request timeout. Please try again.' 
+          : 'Failed to load leaderboard.',
+        fallbackData: await getFallbackData() // Implement this function
       },
       { status }
     );
+  }
+}
+
+// Fallback data in case of failures
+async function getFallbackData() {
+  try {
+    // Try to get cached data even if DB is down
+    const cache = await caches.default;
+    const response = await cache.match('leaderboard-fallback');
+    if (response) return await response.json();
+    
+    // Default empty data
+    return [];
+  } catch {
+    return [];
   }
 }
