@@ -15,9 +15,33 @@
 |-- src
     |-- app
         |-- api
+            |-- leaderboard
+                |-- route.js
+            |-- submit
+                |-- route.js
             |-- subscribe
+                |-- route.js
+            |-- thala-check
                 |-- route.js
         |-- favicon.ico
         |-- globals.css
         |-- layout.js
+        |-- leaderboard
+            |-- page.jsx
         |-- page.js
+        |-- profile
+            |-- [userId]
+                |-- page.jsx
+        |-- submit
+            |-- page.jsx
+    |-- components
+        |-- Navbar.jsx
+        |-- Sidebar.jsx
+        |-- SubmitForm.jsx
+        |-- ThalaCard.jsx
+        |-- ThalaResult.jsx
+    |-- constants
+        |-- message.js
+    |-- lib
+        |-- dbConnect.js
+        |-- thalaCheck.js
