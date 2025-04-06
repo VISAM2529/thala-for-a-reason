@@ -89,7 +89,7 @@ export async function POST(req) {
       );
     }
 
-    await Promise.all(tasks);
+    await Promise.allSettled(tasks);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
