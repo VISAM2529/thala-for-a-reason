@@ -1,6 +1,6 @@
 // src/app/api/submit/route.js
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/dbConnect';
+import { connectToDatabase } from '@/lib/dbConnect';
 import { checkThala } from '@/lib/thalaCheck';
 
 export async function POST(request) {
@@ -28,8 +28,7 @@ export async function POST(request) {
     }
     
     // Connect to MongoDB
-    const client = await clientPromise;
-    const db = client.db('thalaApp');
+    const db = await connectToDatabase()
     
     // Create submission document
     const submission = {
