@@ -5,8 +5,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { MESSAGES, PLACEHOLDERS } from '@/constants/message';
+import { useSession } from 'next-auth/react';
 
 export default function Home() {
+  const {data:session} = useSession()
+  console.log(session?.user?.id)
   const [input, setInput] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);

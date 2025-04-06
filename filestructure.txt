@@ -15,26 +15,44 @@
 |-- src
     |-- app
         |-- api
+            |-- auth
+                |-- [...nextauth]
+                    |-- route.js
             |-- leaderboard
                 |-- route.js
+            |-- register
+                |-- route.js
+            |-- submissions
+                |-- like
+                    |-- route.js
             |-- submit
                 |-- route.js
             |-- subscribe
                 |-- route.js
             |-- thala-check
                 |-- route.js
+            |-- users
+                |-- [userId]
+                    |-- route.js
+                    |-- submissions
+                        |-- route.js
         |-- favicon.ico
         |-- globals.css
         |-- layout.js
         |-- leaderboard
             |-- page.jsx
+        |-- login
+            |-- page.jsx
         |-- page.js
         |-- profile
             |-- [userId]
                 |-- page.jsx
+        |-- register
+            |-- page.jsx
         |-- submit
             |-- page.jsx
     |-- components
+        |-- AuthProvider.js
         |-- Navbar.jsx
         |-- Sidebar.jsx
         |-- SubmitForm.jsx
@@ -43,5 +61,10 @@
     |-- constants
         |-- message.js
     |-- lib
+        |-- auth.js
         |-- dbConnect.js
         |-- thalaCheck.js
+    |-- middleware.js
+    |-- models
+        |-- Submission.js
+        |-- User.js

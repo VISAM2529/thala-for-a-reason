@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import ThalaResult from '@/components/ThalaResult';
 import { MESSAGES, PLACEHOLDERS } from '@/constants/message';
+import { useSession } from 'next-auth/react';
 
 // Enhanced SubmitForm component
 const SubmitForm = ({ name, setName, input, explanation, setExplanation, onSubmit, loading }) => {
@@ -97,6 +98,7 @@ export default function Submit() {
   const [checkResult, setCheckResult] = useState(null);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [loading, setLoading] = useState(false);
+  const {data:session} = useSession()
   
   // Check if there's a thala result in local storage from the homepage check
   useEffect(() => {
@@ -159,7 +161,8 @@ export default function Submit() {
         body: JSON.stringify({
           name,
           input,
-          explanation
+          explanation,
+          userId:session?.user?.id
         })
       });
       

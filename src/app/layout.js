@@ -5,6 +5,7 @@ import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 import { useState } from "react";
+import { AuthProvider } from "@/components/AuthProvider";
 
 // Load fonts
 const geistSans = Geist({
@@ -84,6 +85,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable}`}>
       <body className="bg-gray-100 min-h-screen">
+        <AuthProvider>
         {/* Sidebar */}
         <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         
@@ -104,6 +106,7 @@ export default function RootLayout({ children }) {
             </div>
           </footer>
         </div>
+        </AuthProvider>
       </body>
     </html>
   );

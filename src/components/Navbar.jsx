@@ -1,15 +1,17 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react'; // ✅ Import this
+import Image from 'next/image';
 
 const Navbar = ({ toggleSidebar }) => {
   const [scrolled, setScrolled] = useState(false);
-  
-  // Handle scroll effect
+  const { data: session } = useSession(); // ✅ Get session data
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -46,13 +48,30 @@ const Navbar = ({ toggleSidebar }) => {
 
           {/* Right Side - Profile & Mobile Menu */}
           <div className="flex items-center space-x-6">
-            <Link href="/profile/guest" className="flex items-center space-x-2 hover:text-yellow-300 transition-colors">
-              <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center text-blue-900 shadow-md">
-                <span className="text-sm font-bold">G</span>
-              </div>
-              <span className="hidden md:inline font-medium">Profile</span>
+            <Link
+              href={session ? `/profile/${session.user.id}` : "/profile/guest"}
+              className="flex items-center space-x-2 hover:text-yellow-300 transition-colors"
+            >
+              {session?.user?.image ? (
+                <Image
+                  width={1920}
+                  height={1080}
+                  src={session.user.image}
+                  alt="User profile"
+                  className="w-8 h-8 rounded-full shadow-md"
+                />
+              ) : (
+                <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center text-blue-900 shadow-md">
+                  <span className="text-sm font-bold">
+                    {session?.user?.name?.[0]?.toUpperCase() || 'G'}
+                  </span>
+                </div>
+              )}
+              <span className="hidden md:inline font-medium text-yellow-400">
+                {session?.user?.name || 'Profile'}
+              </span>
             </Link>
-            
+
             {/* Mobile Menu Button */}
             <button 
               onClick={toggleSidebar} 

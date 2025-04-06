@@ -1,33 +1,22 @@
-import { MongoClient } from 'mongodb';
+import mongoose from "mongoose";
 
-// Connection URI - Replace with your MongoDB connection string
-const MONGODB_URI = process.env.MONGODB_URI;
-const MONGODB_DB = process.env.MONGODB_DB || 'thalaApp';
+let isConnected = false;
 
-// Check the MongoDB URI
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
-}
+export default async function dbConnect() {
+  if (isConnected) return;
 
-let cachedClient = null;
-let cachedDb = null;
-
-export async function connectToDatabase() {
-  // If we have a cached connection, use it
-  if (cachedClient && cachedDb) {
-    return cachedDb;
+  if (!process.env.MONGODB_URI) {
+    throw new Error("Please define the MONGODB_URI environment variable");
   }
 
-  // If no cached connection, create a new one
-  const client = await MongoClient.connect(MONGODB_URI, {
-    maxPoolSize: 10,
-  });
+  try {
+    const db = await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: process.env.MONGODB_DB || "thalaApp",
+    });
 
-  const db = client.db(MONGODB_DB);
-
-  // Cache the connection
-  cachedClient = client;
-  cachedDb = db;
-
-  return db;
+    isConnected = db.connections[0].readyState;
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    throw error;
+  }
 }
