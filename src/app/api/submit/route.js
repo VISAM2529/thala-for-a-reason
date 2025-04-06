@@ -3,6 +3,7 @@ import dbConnect from '@/lib/dbConnect';
 import { checkThala } from '@/lib/thalaCheck';
 import { z } from 'zod';
 import Submission from '@/models/Submission';
+import mongoose from 'mongoose'; // Import mongoose directly
 
 // Define schema for submission validation
 const submissionSchema = z.object({
@@ -21,16 +22,16 @@ const submissionSchema = z.object({
 export async function POST(request) {
   try {
     const body = await request.json();
-    
+
     // Log request body for debugging
     console.log('Submission request body:', body);
-    
+
     // Ensure input is always a string
     const processedBody = {
       ...body,
       input: String(body.input)
     };
-    
+
     // Validate inputs against schema
     const validation = submissionSchema.safeParse(processedBody);
     if (!validation.success) {
@@ -43,12 +44,12 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    
+
     const { name, input, explanation, userId, imageUrl } = validation.data;
-    
+
     // Check if the input is Thala-worthy
     const thalaResult = checkThala(input);
-    
+
     // If not Thala, reject the submission
     if (!thalaResult.isThala) {
       return NextResponse.json(
@@ -60,16 +61,16 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    
+
     // Connect to MongoDB using Mongoose
     await dbConnect();
-    
+
     // Create submission using Mongoose model
     const submissionData = {
       userInfo: {
         name,
         imageUrl: imageUrl || null,
-        userId
+        userId: userId && mongoose.Types.ObjectId.isValid(userId) ? userId : null, // Validate and conditionally add userId
       },
       content: {
         input: input,
@@ -92,25 +93,12 @@ export async function POST(request) {
         status: 'published'
       }
     };
-    
-    // Only add userId if it exists and is valid
-    if (userId) {
-      try {
-        // Only assign userId if it's a valid ObjectId
-        const mongoose = require('mongoose');
-        if (mongoose.Types.ObjectId.isValid(userId)) {
-          submissionData.userInfo.userId = userId;
-        }
-      } catch (e) {
-        console.log('Invalid userId format, skipping');
-      }
-    }
-    
+
     const submission = new Submission(submissionData);
-    
+
     // Save the submission to the database
     const savedSubmission = await submission.save();
-    
+
     return NextResponse.json({
       success: true,
       message: 'Thala submission received successfully!',
@@ -122,7 +110,7 @@ export async function POST(request) {
         input: input
       }
     }, { status: 201 });
-    
+
   } catch (error) {
     console.error('Submission error:', error);
     return NextResponse.json(

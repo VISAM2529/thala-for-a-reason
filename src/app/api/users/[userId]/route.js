@@ -4,7 +4,7 @@ import { User } from "@/models/User";
 import mongoose from "mongoose";
 
 export async function GET(request, { params }) {
-  const { userId } = await params;
+  const { userId } = params; // Removed await, params is not a promise
 
   await dbConnect();
 
@@ -13,7 +13,7 @@ export async function GET(request, { params }) {
   }
 
   try {
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(userId).select("-password").lean(); // Added .lean() for potentially lighter data
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });

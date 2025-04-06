@@ -19,7 +19,15 @@ export async function PUT(request) {
       return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
     }
 
-    const hasLiked = submission.stats.likedBy?.includes(userId);
+    // Ensure 'stats' exists and 'likedBy' is an array
+    if (!submission.stats) {
+      submission.stats = { likes: 0, likedBy: [] };
+    }
+    if (!Array.isArray(submission.stats.likedBy)) {
+      submission.stats.likedBy = [];
+    }
+
+    const hasLiked = submission.stats.likedBy.includes(userId);
 
     if (hasLiked) {
       // If already liked, remove the like (toggle off)
@@ -28,7 +36,7 @@ export async function PUT(request) {
     } else {
       // If not yet liked, add like
       submission.stats.likes += 1;
-      submission.stats.likedBy = [...(submission.stats.likedBy || []), userId];
+      submission.stats.likedBy = [...submission.stats.likedBy, userId];
     }
 
     await submission.save();

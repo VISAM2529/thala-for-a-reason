@@ -14,11 +14,11 @@ export default function Leaderboard() {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const response = await fetch(`/api/leaderboard?sort=${filter}`);
+        const response = await fetch(`/api/leaderboard`);
         if (!response.ok) throw new Error('Failed to fetch leaderboard');
         
         const data = await response.json();
-        setSubmissions(data.submissions);
+        setSubmissions(data.data);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching leaderboard:', err);
