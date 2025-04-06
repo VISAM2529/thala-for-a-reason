@@ -1,22 +1,39 @@
 import mongoose from "mongoose";
 
-let isConnected = false;
+const MONGODB_URI = process.env.MONGODB_URI;
 
-export default async function dbConnect() {
-  if (isConnected) return;
-
-  if (!process.env.MONGODB_URI) {
-    throw new Error("Please define the MONGODB_URI environment variable");
-  }
-
-  try {
-    const db = await mongoose.connect(process.env.MONGODB_URI, {
-      dbName: process.env.MONGODB_DB || "thalaApp",
-    });
-
-    isConnected = db.connections[0].readyState;
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-    throw error;
-  }
+if (!MONGODB_URI) {
+  throw new Error("Please define the MONGODB_URI environment variable");
 }
+
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function dbConnect() {
+  if (cached.conn) {
+    console.log("Database already connected.");
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    console.log("Connecting to database...");
+    cached.promise = mongoose
+      .connect(MONGODB_URI, {})
+      .then((mongoose) => {
+        console.log("Database connected successfully.");
+        return mongoose;
+      })
+      .catch((error) => {
+        console.error("Database connection failed:", error);
+        throw error;
+      });
+  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+module.exports = dbConnect;
