@@ -4,7 +4,7 @@ import { User } from "@/models/User";
 import mongoose from "mongoose";
 
 export async function GET(request, { params }) {
-  const { userId } = params; // Removed await, params is not a promise
+  const { userId } = await params; // Removed await, params is not a promise
 
   await dbConnect();
 

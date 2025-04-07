@@ -22,9 +22,13 @@
                 |-- route.js
             |-- register
                 |-- route.js
+            |-- submission
+                |-- [id]
+                    |-- route.js
             |-- submissions
                 |-- like
                     |-- route.js
+                |-- route.js
             |-- submit
                 |-- route.js
             |-- subscribe
@@ -49,11 +53,15 @@
                 |-- page.jsx
         |-- register
             |-- page.jsx
+        |-- submission
+            |-- [...id]
+                |-- page.jsx
         |-- submit
             |-- page.jsx
     |-- components
         |-- AuthProvider.js
         |-- Navbar.jsx
+        |-- ShareDialog.jsx
         |-- Sidebar.jsx
         |-- SubmitForm.jsx
         |-- ThalaCard.jsx
