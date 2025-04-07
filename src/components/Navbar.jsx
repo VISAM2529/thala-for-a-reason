@@ -44,6 +44,9 @@ const Navbar = ({ toggleSidebar }) => {
             <Link href="/leaderboard" className="text-white hover:text-yellow-400 font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-yellow-400 after:transition-all hover:after:w-full">
               Leaderboard
             </Link>
+            <Link href="/meme-generator" className="text-white hover:text-yellow-400 font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-yellow-400 after:transition-all hover:after:w-full">
+              Memes
+            </Link>
           </div>
 
           {/* Right Side - Profile & Mobile Menu */}

@@ -8,7 +8,16 @@
 |-- public
     |-- file.svg
     |-- globe.svg
+    |-- images
+        |-- ms-dhoni.jpg
+        |-- number-7.jpg
+        |-- thala-templates
+            |-- template-1.jpg
+            |-- template-2.jpg
+            |-- template-3.jpg
     |-- next.svg
+    |-- sounds
+        |-- thala-bgm.mp3
     |-- vercel.svg
     |-- window.svg
 |-- README.md
@@ -18,8 +27,15 @@
             |-- auth
                 |-- [...nextauth]
                     |-- route.js
+            |-- generate-meme
+                |-- route.js
             |-- leaderboard
                 |-- route.js
+            |-- memes
+                |-- route.js
+                |-- [id]
+                    |-- like
+                        |-- route.js
             |-- register
                 |-- route.js
             |-- submission
@@ -47,6 +63,8 @@
             |-- page.jsx
         |-- login
             |-- page.jsx
+        |-- meme-generator
+            |-- page.jsx
         |-- page.js
         |-- profile
             |-- [userId]
@@ -58,21 +76,29 @@
                 |-- page.jsx
         |-- submit
             |-- page.jsx
+        |-- thala
+            |-- page.jsx
     |-- components
         |-- AuthProvider.js
+        |-- MemeCanvas.jsx
+        |-- MemeForm.jsx
+        |-- MemeGallery.jsx
         |-- Navbar.jsx
         |-- ShareDialog.jsx
         |-- Sidebar.jsx
         |-- SubmitForm.jsx
         |-- ThalaCard.jsx
+        |-- ThalaCheck.jsx
         |-- ThalaResult.jsx
     |-- constants
         |-- message.js
     |-- lib
         |-- auth.js
         |-- dbConnect.js
+        |-- thala-utils.js
         |-- thalaCheck.js
     |-- middleware.js
     |-- models
+        |-- Meme.js
         |-- Submission.js
         |-- User.js

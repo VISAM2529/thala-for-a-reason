@@ -136,15 +136,17 @@ const ThalaCard = ({ submission }) => {
     verification: { isThala }
   } = submission;
 
+  // Optimistic UI state management
   const [likes, setLikes] = useState(initialLikes);
-  const [isLiking, setIsLiking] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
 
+  // Initialize like state on component mount
   useEffect(() => {
-    if (loggedInUserId && likedBy.includes(loggedInUserId)) {
-      setHasLiked(true);
+    if (loggedInUserId) {
+      setHasLiked(likedBy.includes(loggedInUserId));
     }
   }, [loggedInUserId, likedBy]);
 
@@ -154,10 +156,25 @@ const ThalaCard = ({ submission }) => {
     day: 'numeric'
   });
 
+  // Improved like handler with optimistic updates
   const handleLike = async () => {
-    if (isLiking || !loggedInUserId) return;
-
-    setIsLiking(true);
+    // Check if user is logged in
+    if (!loggedInUserId) {
+      // Could show a login prompt here
+      return;
+    }
+    
+    // Prevent multiple clicks while request is in flight
+    if (isPending) return;
+    
+    // Optimistic update - immediately update UI
+    const willBeLiked = !hasLiked;
+    const optimisticLikes = willBeLiked ? likes + 1 : likes - 1;
+    
+    setHasLiked(willBeLiked);
+    setLikes(optimisticLikes);
+    setIsPending(true);
+    
     try {
       const response = await fetch('/api/submissions/like', {
         method: 'PUT',
@@ -165,20 +182,33 @@ const ThalaCard = ({ submission }) => {
         body: JSON.stringify({ submissionId: id, userId: loggedInUserId }),
       });
 
-      if (!response.ok) throw new Error('Failed to update like');
-
+      if (!response.ok) {
+        throw new Error('Failed to update like');
+      }
+      
+      // Server responded successfully - update with confirmed values
       const data = await response.json();
       setLikes(data.likes);
       setHasLiked(data.likedBy.includes(loggedInUserId));
+      
     } catch (error) {
       console.error('Error liking submission:', error);
+      // Revert to previous state if there was an error
+      setHasLiked(!willBeLiked);
+      setLikes(willBeLiked ? likes : likes + 1);
     } finally {
-      setIsLiking(false);
+      setIsPending(false);
     }
   };
 
   const handleShare = () => {
     setIsShareOpen(true);
+  };
+
+  // Add a debounced version of handleLike to prevent double-clicks
+  const debouncedHandleLike = (e) => {
+    e.preventDefault(); // Prevent potential double-clicks
+    handleLike();
   };
 
   return (
@@ -227,15 +257,15 @@ const ThalaCard = ({ submission }) => {
 
           <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
             <motion.button 
-              onClick={handleLike}
-              disabled={isLiking}
-              className={`flex items-center space-x-2 py-2 px-4 rounded-full transition-all duration-300 ${
+              onClick={debouncedHandleLike}
+              disabled={isPending}
+              className={`flex items-center space-x-2 py-2 px-4 rounded-full transition-all duration-150 ${
                 hasLiked 
                   ? 'bg-yellow-100 text-yellow-600' 
                   : 'bg-gray-100 text-gray-600 hover:bg-yellow-50 hover:text-yellow-600'
               }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
               {hasLiked ? (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-5 h-5" viewBox="0 0 24 24">

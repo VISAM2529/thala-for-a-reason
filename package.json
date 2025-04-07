@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "canvas": "^3.1.0",
+    "cloudinary": "^2.6.0",
     "framer-motion": "^12.6.3",
     "lucide-react": "^0.487.0",
     "mongodb": "^6.15.0",
@@ -19,6 +21,7 @@
     "nodemailer": "^6.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "sharp": "^0.34.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
