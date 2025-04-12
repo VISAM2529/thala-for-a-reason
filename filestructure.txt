@@ -81,6 +81,7 @@
     |-- components
         |-- AdBanner.js
         |-- AuthProvider.js
+        |-- LayoutClient.js
         |-- MemeCanvas.jsx
         |-- MemeForm.jsx
         |-- MemeGallery.jsx
