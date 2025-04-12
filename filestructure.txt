@@ -6,6 +6,7 @@
 |-- package.json
 |-- postcss.config.mjs
 |-- public
+    |-- ads.txt
     |-- file.svg
     |-- globe.svg
     |-- images
