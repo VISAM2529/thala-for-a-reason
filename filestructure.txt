@@ -79,6 +79,7 @@
         |-- thala
             |-- page.jsx
     |-- components
+        |-- AdBanner.js
         |-- AuthProvider.js
         |-- MemeCanvas.jsx
         |-- MemeForm.jsx

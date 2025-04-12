@@ -84,6 +84,10 @@ export default function RootLayout({ children }) {
   
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable}`}>
+      <head>
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2101340679206874"
+     crossorigin="anonymous"></script>
+      </head>
       <body className="bg-gray-100 min-h-screen">
         <AuthProvider>
         {/* Sidebar */}

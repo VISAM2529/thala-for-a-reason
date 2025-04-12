@@ -71,7 +71,7 @@ export async function POST(req) {
           try {
             await client.connect();
             const db = client.db('thala-app');
-            const subscribers = db.collection('subscribers');
+            const subscribers = db.collection('thala-subscribers');
             const existing = await subscribers.findOne({ email });
 
             if (!existing) {
